@@ -18,4 +18,6 @@ class Node {
       void change_prev(Node* new_prev) {prev = new_prev;}
       int get_i() {return this->i;}
       int get_j() {return this->j;}
+      int get_value() {return this->value;}
+      Node* get_prev() {return prev;}
 };
