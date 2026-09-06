@@ -22,6 +22,8 @@ class DnsSequece {
         std::vector<std::vector<int>> matrix{};
         std::vector<char> a{};
         std::vector<char> b{};
+        std::string sequence_a{};
+        std::string sequence_b{};
 
         std::vector<std::vector<int>> matrix_create(size_t rows, size_t columns) {
             std::vector<std::vector<int>> matrix{rows};
@@ -35,19 +37,6 @@ class DnsSequece {
                 matrix[0][i] = -i * gap;
             }
             return matrix;
-        }
-
-        int best_op(int dia, int up, int left, char a, char b) {
-            int r_dia{};
-            int r_up{up + gap};
-            int r_left{left + gap};
-
-            if (a == b) {
-                r_dia = dia + match;
-            } else {r_dia = dia + mismatch;}
-
-            int max = std::max(r_up, r_left);
-            return std::max(max, r_dia);
         }
 
     public:
@@ -79,20 +68,22 @@ class DnsSequece {
 
         std::string get_modif_a() {
             if (a.empty()) return "empty";
-            std::string sequence{};
-            for (char leter: a) {
-                sequence.push_back(leter);
+            if (sequence_a.empty()) {
+                for (char leter: a) {
+                    sequence_a.push_back(leter);
+                }
             }
-            return sequence;
+            return sequence_a;
         }
 
         std::string get_modif_b() {
             if (b.empty()) return "empty";
-            std::string sequence{};
-            for (char leter: b) {
-                sequence.push_back(leter);
+            if (sequence_b.empty()) {
+                for (char leter: b) {
+                    sequence_b.push_back(leter);
+                }
             }
-            return sequence;
+            return sequence_b;
         }
 
 
