@@ -28,7 +28,7 @@ class DnsSequece {
         std::vector<std::vector<Node>> matrix_create(size_t rows, size_t columns) {
             std::vector<std::vector<Node>> matrix{rows};
             for (size_t i{0}; i < rows; i++) {
-                for (size_t j{j}; j < columns; j++) {
+                for (size_t j{0}; j < columns; j++) {
                     matrix[i].emplace_back(
                         static_cast<int>(i),
                         static_cast<int>(j)
@@ -67,12 +67,24 @@ class DnsSequece {
         }
         void make_sequence() {
             Node* act = matrix[f_adn_len - 1][s_adn_len - 1].get_prev();
-            sequence_a = adns[0].at(f_adn_len - 1);
-            sequence_b = adns[1].at(s_adn_len - 1);
+            sequence_a = adns[0].at(f_adn_len - 2);
+            sequence_b = adns[1].at(s_adn_len - 2);
+            int i = f_adn_len;
+            int j = s_adn_len;
             while (act->get_prev() != nullptr) {
                 if (act->get_i() == 0 && act->get_j() == 0) break;
-                sequence_a.push_back(adns[0].at(act->get_i() - 1));
-                sequence_b.push_back(adns[1].at(act->get_j() - 1));
+                if (i != act->get_i()) {
+                    sequence_a.push_back(adns[0].at(act->get_i() - 1));
+                } else {
+                    sequence_a.push_back(' ');
+                }
+                if (j != act->get_j()) {
+                    sequence_b.push_back(adns[1].at(act->get_j() - 1));
+                } else {
+                    sequence_b.push_back(' ');
+                }
+                i = act->get_i();
+                j = act->get_j();
                 act = act->get_prev();
             }
             std::reverse(sequence_a.begin(), sequence_a.end());
@@ -103,21 +115,9 @@ class DnsSequece {
         std::string get_original_a() {return adns[0];}
         std::string get_original_b() {return adns[1];}
         std::string get_modif_a() {
-            if (a.empty()) return "empty";
-            if (sequence_a.empty()) {
-                for (char leter: a) {
-                    sequence_a.push_back(leter);
-                }
-            }
             return sequence_a;
         }
         std::string get_modif_b() {
-            if (b.empty()) return "empty";
-            if (sequence_b.empty()) {
-                for (char leter: b) {
-                    sequence_b.push_back(leter);
-                }
-            }
             return sequence_b;
         }
 
