@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <cstddef>
 #include <fstream>
 #include <iostream>
@@ -35,14 +34,22 @@ class DnsSequece {
                     );
                 }
             }
-            for (size_t i{0}; i < rows; i++) {
-                matrix[i][0].change_value(-i * gap);
+            Node* act{&matrix[0][0]};
+            for (size_t i{1}; i < rows; i++) {
+                matrix[i][0].change_value(i * gap);
+                matrix[i][0].change_prev(act);
+                act = &matrix[i][0];
             }
+            act = &matrix[0][0];
             for (size_t i{1}; i < columns; i++) {
-                matrix[0][i].change_value(-i * gap);
+                matrix[0][i].change_value(i * gap);
+                matrix[0][i].change_prev(act);
+                act = &matrix[0][i];
             }
             return matrix;
+
         }
+
         void fill_matrix() {
             for (size_t i{1}; i < f_adn_len; i++) {
                 for (size_t j{1}; j < s_adn_len; j++) {
@@ -65,30 +72,38 @@ class DnsSequece {
                 }
             }
         }
+
         void make_sequence() {
-            Node* act = matrix[f_adn_len - 1][s_adn_len - 1].get_prev();
-            sequence_a = adns[0].at(f_adn_len - 2);
-            sequence_b = adns[1].at(s_adn_len - 2);
-            int i = f_adn_len;
-            int j = s_adn_len;
+            Node* act = &matrix[f_adn_len - 1][s_adn_len - 1];
+            std::vector<int> instruct{};
             while (act->get_prev() != nullptr) {
-                if (act->get_i() == 0 && act->get_j() == 0) break;
-                if (i != act->get_i()) {
-                    sequence_a.push_back(adns[0].at(act->get_i() - 1));
-                } else {
-                    sequence_a.push_back(' ');
-                }
-                if (j != act->get_j()) {
-                    sequence_b.push_back(adns[1].at(act->get_j() - 1));
-                } else {
-                    sequence_b.push_back(' ');
-                }
-                i = act->get_i();
-                j = act->get_j();
+                if (act->get_i() != act->get_prev()->get_i() && act->get_j() != act->get_prev()->get_j()) {
+                    instruct.push_back(0);
+                } else if (act->get_i() != act->get_prev()->get_i()) {
+                    instruct.push_back(1);
+                } else instruct.push_back(2);
                 act = act->get_prev();
             }
-            std::reverse(sequence_a.begin(), sequence_a.end());
-            std::reverse(sequence_b.begin(), sequence_b.end());
+            int index_a{0};
+            int index_b{0};
+
+            for (int i = instruct.size() - 1; i >= 0; i--){
+                if (instruct[i] == 0) {
+                    sequence_a.push_back(adns[0].at(index_a));
+                    index_a++;
+                    sequence_b.push_back(adns[1].at(index_b));
+                    index_b++;
+                } else if (instruct[i] == 1) {
+                    sequence_a.push_back(adns[0].at(index_a));
+                    index_a++;
+                    sequence_b.push_back(' ');
+                } else {
+                    sequence_a.push_back(' ');
+                    sequence_b.push_back(adns[1].at(index_b));
+                    index_b++;
+                }
+            }
+
         }
 
     public:
@@ -106,7 +121,6 @@ class DnsSequece {
             }
             f_adn_len = adns[0].size() + 1;
             s_adn_len = adns[1].size() + 1;
-
             matrix = matrix_create(f_adn_len, s_adn_len);
             fill_matrix();
             make_sequence();
