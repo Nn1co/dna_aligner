@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -14,13 +13,11 @@ class DnsSequece {
         const int mismatch{-1};
         const int gap{-2};
 
-        std::vector<std::string> adns;
+        std::string adns[2];
         size_t f_adn_len{};
         size_t s_adn_len{};
 
         std::vector<std::vector<Node>> matrix{};
-        std::vector<char> a{};
-        std::vector<char> b{};
         std::string sequence_a{};
         std::string sequence_b{};
 
@@ -73,6 +70,33 @@ class DnsSequece {
             }
         }
 
+
+    public:
+        DnsSequece(std::string sequence_a, std::string sequence_b){
+            adns[0].assign(sequence_a);
+            adns[1].assign(sequence_b);
+            f_adn_len = adns[0].size() + 1;
+            s_adn_len = adns[1].size() + 1;
+            matrix = matrix_create(f_adn_len, s_adn_len);
+            fill_matrix();
+        }
+
+        std::string get_original_a() {return adns[0];}
+        std::string get_original_b() {return adns[1];}
+        std::string get_modif_a() {
+            return sequence_a;
+        }
+        std::string get_modif_b() {
+            return sequence_b;
+        }
+
+        void print_matrix() {
+            for (size_t i = 0; i < f_adn_len; i++) {
+                for (size_t j = 0; j < s_adn_len; j++) {
+                    std::cout << matrix[i][j].get_value();
+                }
+            }
+        }
         void make_sequence() {
             Node* act = &matrix[f_adn_len - 1][s_adn_len - 1];
             std::vector<int> instruct{};
@@ -105,34 +129,23 @@ class DnsSequece {
             }
 
         }
-
-    public:
-        DnsSequece(char* file_name) {
-            std::ifstream file(file_name);
-            if (!file) {std::cerr << "error opening the file";}
-            std::string line;
-
-            while (std::getline(file, line)) {
-                if (line.at(0) == '>') {
-                   adns.emplace_back();
+        int get_score() {
+            int score{0};
+            for (size_t i = 0; i < sequence_a.size(); i++) {
+                if (sequence_a.at(i) != sequence_b.at(i)) {
+                    score += match;
+                } else if (sequence_a.at(i) == ' ' || sequence_b.at(i) == ' ') {
+                    score += gap;
                 } else {
-                    adns.back() += line;
+                    score += mismatch;
                 }
             }
-            f_adn_len = adns[0].size() + 1;
-            s_adn_len = adns[1].size() + 1;
-            matrix = matrix_create(f_adn_len, s_adn_len);
-            fill_matrix();
+            return score;
+        }
+        int lazy_score() {
             make_sequence();
-        }
+            return get_score();
 
-        std::string get_original_a() {return adns[0];}
-        std::string get_original_b() {return adns[1];}
-        std::string get_modif_a() {
-            return sequence_a;
-        }
-        std::string get_modif_b() {
-            return sequence_b;
         }
 
 };
